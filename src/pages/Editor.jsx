@@ -68,7 +68,7 @@ export default function Editor() {
     const handler = (e) => {
       if (e.ctrlKey && e.key === 'h') {
         e.preventDefault()
-        setFindReplaceOpen(true)
+        setFindReplaceOpen(prev => !prev)  // Toggle — open/close karo
       }
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault()

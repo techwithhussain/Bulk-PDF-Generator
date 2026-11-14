@@ -69,6 +69,13 @@ contextBridge.exposeInMainWorld('api', {
     openContainingFolder: (itemId) => ipcRenderer.invoke('library:openContainingFolder', itemId),
   },
 
+  // License / Activation
+  license: {
+    checkLocal: () => ipcRenderer.invoke('license:checkLocal'),
+    activate: (key) => ipcRenderer.invoke('license:activate', key),
+    deactivate: () => ipcRenderer.invoke('license:deactivate'),
+  },
+
   // IPC event listeners (progress updates, etc.)
   on: (channel, callback) => {
     const allowedChannels = [

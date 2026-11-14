@@ -393,7 +393,9 @@ function registerPdfHandlers(ipcMain) {
 
 async function processBatch(batchId, contentJson, settings, outputDir, sender) {
   const db = getDb()
-  const maxWorkers = (settings.lowMemoryMode || settings.low_memory_mode) ? 1 : (settings.maxConcurrentWorkers || settings.max_concurrent_workers || 2)
+  // Reduce concurrent workers to 1 on normal mode to prevent system hang
+  // User can increase in Settings > Low Memory Mode
+  const maxWorkers = (settings.lowMemoryMode || settings.low_memory_mode) ? 1 : (settings.maxConcurrentWorkers || settings.max_concurrent_workers || 1)
 
   const pendingItems = db.prepare(`
     SELECT * FROM pdf_items WHERE batch_id = ? AND status = 'pending' ORDER BY item_index
@@ -437,7 +439,12 @@ async function processBatch(batchId, contentJson, settings, outputDir, sender) {
         db.prepare("UPDATE pdf_items SET status = 'processing' WHERE id = ?").run(item.id)
         sendProgress()
 
-        renderSinglePDF(contentJson, settings, rowData, outputPath)
+        // Small stagger delay (200ms) between starting each render
+        // to prevent simultaneous BrowserWindow creation from hanging the system
+        const staggerDelay = (activeCount - 1) * 200
+
+        new Promise(res => setTimeout(res, staggerDelay))
+          .then(() => renderSinglePDF(contentJson, settings, rowData, outputPath))
           .then(() => {
             const now = new Date().toISOString()
             db.prepare(`

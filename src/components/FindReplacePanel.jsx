@@ -19,7 +19,7 @@ export default function FindReplacePanel({ projectId, onClose, onApplied }) {
         projectId, findText, replaceText, scope, matchCase, wholeWord
       })
       setPreview(res)
-      setPhase('preview')
+      setPhase(res.count > 0 ? 'preview' : 'preview')
     } catch (err) {
       alert('Preview failed: ' + err.message)
     } finally {
@@ -27,12 +27,12 @@ export default function FindReplacePanel({ projectId, onClose, onApplied }) {
     }
   }
 
-  async function handleApply() {
-    if (!window.confirm(
-      `Replace all ${preview?.count} occurrences of "${findText}" with "${replaceText}"?\n` +
-      `This will affect ${preview?.affectedPdfs} PDFs (scope: ${scope}).\n\nThis action can be undone by restoring a previous revision.`
-    )) return
+  // Show confirm step (no native dialog — in-app UI)
+  function handleConfirmStep() {
+    setPhase('confirm')
+  }
 
+  async function handleApply() {
     setLoading(true)
     try {
       const res = await window.api.findReplace.apply({
@@ -44,6 +44,7 @@ export default function FindReplacePanel({ projectId, onClose, onApplied }) {
         onApplied?.(res.newContentJson)
       }
     } catch (err) {
+      setPhase('preview') // go back on error
       alert('Replace failed: ' + err.message)
     } finally {
       setLoading(false)
@@ -171,6 +172,24 @@ export default function FindReplacePanel({ projectId, onClose, onApplied }) {
               <button className="btn-secondary flex-1" onClick={handleReset}>New Search</button>
               <button className="btn-primary flex-1" onClick={onClose}>Close</button>
             </>
+          ) : phase === 'confirm' ? (
+            // In-app confirmation — no native dialog freeze!
+            <div className="w-full space-y-2">
+              <div className="text-sm text-orange-700 bg-orange-50 border border-orange-200 rounded-lg p-2.5">
+                ⚠️ Replace <strong>{preview?.count}</strong> occurrence{preview?.count !== 1 ? 's' : ''} in {preview?.affectedPdfs} PDF{preview?.affectedPdfs !== 1 ? 's' : ''}?
+                <div className="text-xs mt-1 opacity-75">This can be undone via revision history.</div>
+              </div>
+              <div className="flex gap-2">
+                <button className="btn-secondary flex-1" onClick={() => setPhase('preview')}>Cancel</button>
+                <button
+                  className="btn-danger flex-1"
+                  onClick={handleApply}
+                  disabled={loading}
+                >
+                  {loading ? 'Replacing...' : 'Yes, Replace All'}
+                </button>
+              </div>
+            </div>
           ) : (
             <>
               <button className="btn-secondary flex-1" onClick={onClose}>Cancel</button>
@@ -185,10 +204,10 @@ export default function FindReplacePanel({ projectId, onClose, onApplied }) {
               ) : (
                 <button
                   className="btn-danger flex-1"
-                  onClick={handleApply}
+                  onClick={handleConfirmStep}
                   disabled={loading}
                 >
-                  {loading ? 'Replacing...' : `Replace All (${preview.count})`}
+                  {`Replace All (${preview.count})`}
                 </button>
               )}
             </>

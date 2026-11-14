@@ -6,7 +6,7 @@
   * {
     @apply box-border;
   }
-  
+
   body {
     @apply bg-surface-50 text-gray-900 font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -15,12 +15,15 @@
   ::-webkit-scrollbar {
     @apply w-2 h-2;
   }
+
   ::-webkit-scrollbar-track {
     @apply bg-surface-100;
   }
+
   ::-webkit-scrollbar-thumb {
     @apply bg-surface-300 rounded-full;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-400;
   }
@@ -30,21 +33,27 @@
   .btn {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed;
   }
+
   .btn-primary {
     @apply btn bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm;
   }
+
   .btn-secondary {
     @apply btn bg-white text-gray-700 border border-gray-300 hover:bg-surface-50 active:bg-surface-100 shadow-sm;
   }
+
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm;
   }
+
   .btn-ghost {
     @apply btn text-gray-600 hover:bg-surface-100 active:bg-surface-200;
   }
+
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
   }
+
   .btn-lg {
     @apply px-6 py-3 text-base;
   }
@@ -52,11 +61,9 @@
   .card {
     @apply bg-white rounded-xl border border-gray-200 shadow-sm;
   }
-  
+
   .input {
-    @apply w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm
-           placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent
-           disabled:bg-surface-100 disabled:text-gray-500 transition-shadow;
+    @apply w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-surface-100 disabled:text-gray-500 transition-shadow;
   }
 
   .label {
@@ -66,12 +73,30 @@
   .badge {
     @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
   }
-  .badge-green { @apply badge bg-green-100 text-green-800; }
-  .badge-blue { @apply badge bg-blue-100 text-blue-800; }
-  .badge-yellow { @apply badge bg-yellow-100 text-yellow-800; }
-  .badge-red { @apply badge bg-red-100 text-red-800; }
-  .badge-gray { @apply badge bg-gray-100 text-gray-700; }
-  .badge-purple { @apply badge bg-purple-100 text-purple-800; }
+
+  .badge-green {
+    @apply badge bg-green-100 text-green-800;
+  }
+
+  .badge-blue {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+
+  .badge-yellow {
+    @apply badge bg-yellow-100 text-yellow-800;
+  }
+
+  .badge-red {
+    @apply badge bg-red-100 text-red-800;
+  }
+
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-700;
+  }
+
+  .badge-purple {
+    @apply badge bg-purple-100 text-purple-800;
+  }
 }
 
 /* Tiptap editor styles */
@@ -82,9 +107,10 @@
   font-size: 11pt;
   line-height: 1.6;
   color: #1a1a1a;
-  padding: 25.4mm; /* 1 inch margins like Google Docs */
+  padding: 25.4mm;
   cursor: text;
   caret-color: #1a73e8;
+  word-wrap: break-word;
 }
 
 /* Placeholder text when editor is empty */
@@ -115,20 +141,92 @@
   background: #c9dbf9;
 }
 
-.tiptap-editor .ProseMirror p { margin-bottom: 0.5em; }
-.tiptap-editor .ProseMirror h1 { font-size: 2em; margin: 0.4em 0; font-weight: bold; color: #1a1a1a; }
-.tiptap-editor .ProseMirror h2 { font-size: 1.5em; margin: 0.4em 0; font-weight: bold; color: #1a1a1a; }
-.tiptap-editor .ProseMirror h3 { font-size: 1.25em; margin: 0.3em 0; font-weight: bold; color: #1a1a1a; }
-.tiptap-editor .ProseMirror ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 0.6em; }
-.tiptap-editor .ProseMirror ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 0.6em; }
-.tiptap-editor .ProseMirror li { margin-bottom: 0.2em; }
-.tiptap-editor .ProseMirror blockquote { border-left: 3px solid #4285f4; padding-left: 1em; color: #555; margin-bottom: 0.6em; background: #f8f9ff; border-radius: 0 4px 4px 0; }
-.tiptap-editor .ProseMirror table { width: 100%; border-collapse: collapse; margin-bottom: 0.8em; }
-.tiptap-editor .ProseMirror th, .tiptap-editor .ProseMirror td { border: 1px solid #dadce0; padding: 8px 12px; }
-.tiptap-editor .ProseMirror th { background: #f1f3f4; font-weight: 600; }
-.tiptap-editor .ProseMirror img { max-width: 100%; height: auto; }
-.tiptap-editor .ProseMirror hr { border: none; border-top: 1px solid #dadce0; margin: 1em 0; }
-.tiptap-editor .ProseMirror code { background: #f1f3f4; padding: 2px 5px; border-radius: 3px; font-family: 'Roboto Mono', monospace; font-size: 0.9em; color: #d93025; }
+.tiptap-editor .ProseMirror p {
+  margin-bottom: 0.5em;
+}
+
+.tiptap-editor .ProseMirror h1 {
+  font-size: 2em;
+  margin: 0.4em 0;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.tiptap-editor .ProseMirror h2 {
+  font-size: 1.5em;
+  margin: 0.4em 0;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.tiptap-editor .ProseMirror h3 {
+  font-size: 1.25em;
+  margin: 0.3em 0;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+
+.tiptap-editor .ProseMirror ul {
+  list-style-type: disc;
+  padding-left: 1.5em;
+  margin-bottom: 0.6em;
+}
+
+.tiptap-editor .ProseMirror ol {
+  list-style-type: decimal;
+  padding-left: 1.5em;
+  margin-bottom: 0.6em;
+}
+
+.tiptap-editor .ProseMirror li {
+  margin-bottom: 0.2em;
+}
+
+.tiptap-editor .ProseMirror blockquote {
+  border-left: 3px solid #4285f4;
+  padding-left: 1em;
+  color: #555;
+  margin-bottom: 0.6em;
+  background: #f8f9ff;
+  border-radius: 0 4px 4px 0;
+}
+
+.tiptap-editor .ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0.8em;
+}
+
+.tiptap-editor .ProseMirror th,
+.tiptap-editor .ProseMirror td {
+  border: 1px solid #dadce0;
+  padding: 8px 12px;
+}
+
+.tiptap-editor .ProseMirror th {
+  background: #f1f3f4;
+  font-weight: 600;
+}
+
+.tiptap-editor .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+}
+
+.tiptap-editor .ProseMirror hr {
+  border: none;
+  border-top: 1px solid #dadce0;
+  margin: 1em 0;
+}
+
+.tiptap-editor .ProseMirror code {
+  background: #f1f3f4;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.9em;
+  color: #d93025;
+}
 
 /* Placeholder style for personalized mode */
 .tiptap-editor .ProseMirror .placeholder-token {
@@ -142,15 +240,22 @@
 
 /* Page shadow — Google Docs style */
 .editor-page {
-  box-shadow: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+  box-shadow: 0 1px 3px rgba(60, 64, 67, .3), 0 4px 8px 3px rgba(60, 64, 67, .15);
 }
 
 /* Animate batch progress bar */
 @keyframes progress-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
 }
+
 .progress-active {
   animation: progress-pulse 1.5s ease-in-out infinite;
 }
-

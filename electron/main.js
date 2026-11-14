@@ -16,6 +16,7 @@ const { registerExportHandlers } = require('./ipc/export')
 const { registerFindReplaceHandlers } = require('./ipc/findReplace')
 const { registerDataImportHandlers } = require('./ipc/dataImport')
 const { registerSettingsHandlers } = require('./ipc/settings')
+const { registerLicenseHandlers } = require('./ipc/license')
 
 let mainWindow = null
 
@@ -86,6 +87,7 @@ app.whenReady().then(async () => {
   registerFindReplaceHandlers(ipcMain)
   registerDataImportHandlers(ipcMain)
   registerSettingsHandlers(ipcMain)
+  registerLicenseHandlers(ipcMain)
 
   createWindow()
 

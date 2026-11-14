@@ -93,12 +93,18 @@ function registerExportHandlers(ipcMain) {
         continue
       }
 
-      let destPath = path.join(targetFolder, item.filename)
+      // Add order number prefix so Windows Explorer shows them in correct order
+      const orderPrefix = String(item.item_index + 1).padStart(3, '0') + '_'
+      const orderedFilename = item.filename.startsWith(orderPrefix)
+        ? item.filename
+        : orderPrefix + item.filename
+
+      let destPath = path.join(targetFolder, orderedFilename)
 
       // Handle collision
       if (fs.existsSync(destPath)) {
-        const ext = path.extname(item.filename)
-        const base = path.basename(item.filename, ext)
+        const ext = path.extname(orderedFilename)
+        const base = path.basename(orderedFilename, ext)
         let counter = 1
         while (fs.existsSync(destPath)) {
           destPath = path.join(targetFolder, `${base}_${counter}${ext}`)
@@ -116,7 +122,7 @@ function registerExportHandlers(ipcMain) {
           event.sender.send('export:progress', {
             batchId, exported, total: items.length, currentFile: item.filename
           })
-        } catch {}
+        } catch { }
       } catch (err) {
         failed++
         errors.push({ filename: item.filename, error: err.message })
@@ -127,7 +133,7 @@ function registerExportHandlers(ipcMain) {
 
     try {
       event.sender.send('export:complete', { batchId, exported, skipped, failed, destFolder: targetFolder, elapsed })
-    } catch {}
+    } catch { }
 
     return { success: true, exported, skipped, failed, errors, destFolder: targetFolder, elapsed }
   })
