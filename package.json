@@ -1,120 +1,127 @@
 {
-    "name": "local-pdf-studio",
-    "version": "1.0.0",
-    "description": "Offline Windows desktop application for bulk PDF generation",
-    "main": "electron/main.js",
-    "scripts": {
-        "dev": "set ELECTRON_RUN_AS_NODE=&& concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-        "dev:vite": "vite",
-        "dev:electron": "set ELECTRON_RUN_AS_NODE=&& electron .",
-        "build": "vite build && electron-builder",
-        "build:vite": "vite build",
-        "build:win": "vite build && electron-builder --win",
-        "preview": "vite preview",
-        "lint": "eslint . --ext js,jsx",
-        "rebuild": "electron-rebuild -f -w better-sqlite3"
+  "name": "local-pdf-studio",
+  "version": "1.1.0",
+  "description": "Offline Windows desktop application for bulk PDF generation",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "set ELECTRON_RUN_AS_NODE=&& concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:vite": "vite",
+    "dev:electron": "set ELECTRON_RUN_AS_NODE=&& electron .",
+    "build": "vite build && electron-builder",
+    "build:vite": "vite build",
+    "build:win": "vite build && electron-builder --win",
+    "preview": "vite preview",
+    "lint": "eslint . --ext js,jsx",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
+  },
+  "keywords": [
+    "pdf",
+    "bulk",
+    "electron",
+    "offline"
+  ],
+  "author": "Local PDF Studio",
+  "license": "MIT",
+  "dependencies": {
+    "@tiptap/core": "^2.5.0",
+    "@tiptap/extension-bold": "^2.5.0",
+    "@tiptap/extension-bullet-list": "^2.5.0",
+    "@tiptap/extension-code": "^2.5.0",
+    "@tiptap/extension-color": "^2.5.0",
+    "@tiptap/extension-document": "^2.5.0",
+    "@tiptap/extension-font-family": "^2.5.0",
+    "@tiptap/extension-hard-break": "^2.5.0",
+    "@tiptap/extension-heading": "^2.5.0",
+    "@tiptap/extension-highlight": "^2.5.0",
+    "@tiptap/extension-horizontal-rule": "^2.5.0",
+    "@tiptap/extension-image": "^2.5.0",
+    "@tiptap/extension-italic": "^2.5.0",
+    "@tiptap/extension-link": "^2.5.0",
+    "@tiptap/extension-list-item": "^2.5.0",
+    "@tiptap/extension-ordered-list": "^2.5.0",
+    "@tiptap/extension-paragraph": "^2.5.0",
+    "@tiptap/extension-placeholder": "^3.33.0",
+    "@tiptap/extension-strike": "^2.5.0",
+    "@tiptap/extension-table": "^2.5.0",
+    "@tiptap/extension-table-cell": "^2.5.0",
+    "@tiptap/extension-table-header": "^2.5.0",
+    "@tiptap/extension-table-row": "^2.5.0",
+    "@tiptap/extension-task-item": "^2.5.0",
+    "@tiptap/extension-task-list": "^2.5.0",
+    "@tiptap/extension-text": "^2.5.0",
+    "@tiptap/extension-text-align": "^2.5.0",
+    "@tiptap/extension-text-style": "^2.5.0",
+    "@tiptap/extension-typography": "^2.5.0",
+    "@tiptap/extension-underline": "^2.5.0",
+    "@tiptap/extensions": "^3.33.0",
+    "@tiptap/pm": "^2.5.0",
+    "@tiptap/react": "^2.5.0",
+    "@tiptap/starter-kit": "^2.5.0",
+    "better-sqlite3": "^9.4.3",
+    "papaparse": "^5.4.1",
+    "pdfjs-dist": "^4.2.67",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.1",
+    "uuid": "^10.0.0",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.2",
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.4",
+    "vite": "^5.3.1",
+    "vite-plugin-electron": "^0.28.7",
+    "vite-plugin-electron-renderer": "^1.0.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.localpdfstudio.app",
+    "productName": "Local PDF Studio",
+    "directories": {
+      "output": "dist-electron"
     },
-    "keywords": [
-        "pdf",
-        "bulk",
-        "electron",
-        "offline"
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "assets/**/*",
+      "node_modules/better-sqlite3/**/*"
     ],
-    "author": "Local PDF Studio",
-    "license": "MIT",
-    "dependencies": {
-        "@tiptap/core": "^2.5.0",
-        "@tiptap/extension-bold": "^2.5.0",
-        "@tiptap/extension-bullet-list": "^2.5.0",
-        "@tiptap/extension-code": "^2.5.0",
-        "@tiptap/extension-color": "^2.5.0",
-        "@tiptap/extension-document": "^2.5.0",
-        "@tiptap/extension-font-family": "^2.5.0",
-        "@tiptap/extension-hard-break": "^2.5.0",
-        "@tiptap/extension-heading": "^2.5.0",
-        "@tiptap/extension-highlight": "^2.5.0",
-        "@tiptap/extension-horizontal-rule": "^2.5.0",
-        "@tiptap/extension-image": "^2.5.0",
-        "@tiptap/extension-italic": "^2.5.0",
-        "@tiptap/extension-link": "^2.5.0",
-        "@tiptap/extension-list-item": "^2.5.0",
-        "@tiptap/extension-ordered-list": "^2.5.0",
-        "@tiptap/extension-paragraph": "^2.5.0",
-        "@tiptap/extension-placeholder": "^3.33.0",
-        "@tiptap/extension-strike": "^2.5.0",
-        "@tiptap/extension-table": "^2.5.0",
-        "@tiptap/extension-table-cell": "^2.5.0",
-        "@tiptap/extension-table-header": "^2.5.0",
-        "@tiptap/extension-table-row": "^2.5.0",
-        "@tiptap/extension-task-item": "^2.5.0",
-        "@tiptap/extension-task-list": "^2.5.0",
-        "@tiptap/extension-text": "^2.5.0",
-        "@tiptap/extension-text-align": "^2.5.0",
-        "@tiptap/extension-text-style": "^2.5.0",
-        "@tiptap/extension-typography": "^2.5.0",
-        "@tiptap/extension-underline": "^2.5.0",
-        "@tiptap/extensions": "^3.33.0",
-        "@tiptap/pm": "^2.5.0",
-        "@tiptap/react": "^2.5.0",
-        "@tiptap/starter-kit": "^2.5.0",
-        "better-sqlite3": "^9.4.3",
-        "papaparse": "^5.4.1",
-        "pdfjs-dist": "^4.2.67",
-        "react": "^18.3.1",
-        "react-dom": "^18.3.1",
-        "react-router-dom": "^6.23.1",
-        "uuid": "^10.0.0",
-        "xlsx": "^0.18.5",
-        "zustand": "^4.5.2"
+    "extraResources": [
+      {
+        "from": "assets/fonts",
+        "to": "fonts"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
     },
-    "devDependencies": {
-        "@electron/rebuild": "^3.6.0",
-        "@types/react": "^18.3.3",
-        "@types/react-dom": "^18.3.0",
-        "@vitejs/plugin-react": "^4.3.1",
-        "autoprefixer": "^10.4.19",
-        "concurrently": "^8.2.2",
-        "electron": "^28.3.3",
-        "electron-builder": "^24.13.3",
-        "eslint": "^8.57.0",
-        "eslint-plugin-react": "^7.34.2",
-        "eslint-plugin-react-hooks": "^4.6.2",
-        "postcss": "^8.4.38",
-        "tailwindcss": "^3.4.4",
-        "vite": "^5.3.1",
-        "vite-plugin-electron": "^0.28.7",
-        "vite-plugin-electron-renderer": "^1.0.0",
-        "wait-on": "^7.2.0"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
     },
-    "build": {
-        "appId": "com.localpdfstudio.app",
-        "productName": "Local PDF Studio",
-        "directories": {
-            "output": "dist-electron"
-        },
-        "files": [
-            "dist/**/*",
-            "electron/**/*",
-            "assets/**/*",
-            "node_modules/better-sqlite3/**/*"
-        ],
-        "extraResources": [
-            {
-                "from": "assets/fonts",
-                "to": "fonts"
-            }
-        ],
-        "win": {
-            "target": [
-                "nsis",
-                "portable"
-            ],
-            "icon": "assets/icon.ico"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowToChangeInstallationDirectory": true,
-            "createDesktopShortcut": true
-        }
+    "icon": "build/icon.png",
+    "mac": {
+      "icon": "build/icon.png",
+      "target": [
+        "dmg"
+      ]
     }
+  }
 }
