@@ -21,11 +21,31 @@ export default function App() {
 
   async function checkActivation() {
     try {
-      const result = await window.api.license.checkLocal()
-      setActivated(result.activated)
-      if (result.activated) setUserName(result.userName || '')
+      // Step 1: Local check (fast)
+      const local = await window.api.license.checkLocal()
+
+      if (!local.activated) {
+        // Not activated locally → show activation screen
+        setActivated(false)
+        return
+      }
+
+      // Step 2: Online verify (every launch)
+      const online = await window.api.license.verifyOnline()
+
+      if (online.valid) {
+        // Valid online (or offline grace) → allow
+        setActivated(true)
+      } else {
+        // Blocked / revoked by owner → show activation screen with reason
+        setActivated(false)
+        if (online.reason && online.reason !== 'no_key') {
+          setTimeout(() => alert('⚠️ ' + online.reason), 500)
+        }
+      }
+
     } catch {
-      // If API not available (dev mode), skip activation
+      // API not available (dev mode) → skip
       setActivated(true)
     }
   }
@@ -39,7 +59,7 @@ export default function App() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-gray-500 text-sm">Loading...</p>
+          <p className="text-gray-500 text-sm">Verifying license...</p>
         </div>
       </div>
     )

@@ -39,6 +39,51 @@ function registerLicenseHandlers(ipcMain) {
     }
   })
 
+  // Online re-verify on every launch (Option A)
+  // Returns: { valid, status, reason }
+  ipcMain.handle('license:verifyOnline', async () => {
+    try {
+      const db = getDb()
+      const keyRow = db.prepare(`SELECT value FROM app_settings WHERE key = 'license_key'`).get()
+      if (!keyRow || !keyRow.value) return { valid: false, reason: 'no_key' }
+
+      const machineId = getMachineId(db)
+      const key = keyRow.value
+      const url = `${VALIDATION_URL}?key=${encodeURIComponent(key)}&machineId=${encodeURIComponent(machineId)}`
+
+      const result = await fetchUrl(url)
+      const data = JSON.parse(result)
+
+      if (data.valid && data.status === 'active') {
+        // Still valid — keep local activation
+        return { valid: true, status: 'active' }
+
+      } else if (data.status === 'blocked') {
+        // Owner blocked this key — clear local activation!
+        db.prepare(`DELETE FROM app_settings WHERE key IN ('license_status','license_key','license_activated_at','license_user')`).run()
+        return { valid: false, status: 'blocked', reason: 'Your license has been revoked. Contact Tech With Hussain.' }
+
+      } else if (data.status === 'machine_mismatch') {
+        // Machine changed without transfer — block
+        db.prepare(`DELETE FROM app_settings WHERE key IN ('license_status','license_key','license_activated_at','license_user')`).run()
+        return { valid: false, status: 'machine_mismatch', reason: 'License transferred to another PC. Contact Tech With Hussain.' }
+
+      } else {
+        // Key not found in sheet anymore — revoke
+        db.prepare(`DELETE FROM app_settings WHERE key IN ('license_status','license_key','license_activated_at','license_user')`).run()
+        return { valid: false, status: 'not_found', reason: 'License key not found. Contact Tech With Hussain.' }
+      }
+
+    } catch (err) {
+      // No internet — allow offline (grace mode)
+      if (err.message === 'NO_INTERNET') {
+        return { valid: true, status: 'offline', reason: 'offline_grace' }
+      }
+      // Other error — allow offline
+      return { valid: true, status: 'offline', reason: 'verify_error' }
+    }
+  })
+
   // Validate key online → save locally if valid
   ipcMain.handle('license:activate', async (_event, licenseKey) => {
     if (!licenseKey || licenseKey.trim() === '') {

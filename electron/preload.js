@@ -72,6 +72,7 @@ contextBridge.exposeInMainWorld('api', {
   // License / Activation
   license: {
     checkLocal: () => ipcRenderer.invoke('license:checkLocal'),
+    verifyOnline: () => ipcRenderer.invoke('license:verifyOnline'),
     activate: (key) => ipcRenderer.invoke('license:activate', key),
     deactivate: () => ipcRenderer.invoke('license:deactivate'),
   },
