@@ -281,8 +281,8 @@ export default function Editor() {
 
         {/* ── LEFT SIDEBAR: Pages / Tabs (Google Docs style) ── */}
         {isPersonalized && (
-          <div className="flex flex-col bg-[#f1f3f4] border-r border-gray-200 flex-shrink-0"
-            style={{ width: '160px', minWidth: '140px' }}>
+          <div className="flex flex-col bg-[#f1f3f4] border-r border-gray-200"
+            style={{ flex: '0 0 160px', width: '160px', maxWidth: '160px', overflow: 'hidden' }}>
 
             {/* Sidebar header */}
             <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
@@ -350,11 +350,11 @@ export default function Editor() {
         )}
 
         {/* ── RIGHT: Editor / Preview Area (overflow-y:scroll = no layout shift) ── */}
-        <div className="flex-1 overflow-y-scroll overflow-x-auto" style={{ background: '#f0f4f9', minWidth: 0 }}>
-          <div className="py-6 px-8" style={{ minWidth: 'calc(210mm + 128px)' }}>
+        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9' }}>
+          <div className="py-6 px-8">
 
             {/* Info bar — changes based on active tab */}
-            <div className="w-[210mm] mx-auto mb-1 flex items-center justify-between px-1">
+            <div style={{ width: '100%', maxWidth: '210mm' }} className="mx-auto mb-1 flex items-center justify-between px-1">
               <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
               {activeTab !== 'template' ? (
                 <div className="flex items-center gap-2">
@@ -385,8 +385,8 @@ export default function Editor() {
             </div>
             {/* ── Single Paper div — always same size, content changes ── */}
             {/* -- Single Paper div -- editor always rendered, preview overlays -- */}
-            <div className="w-[210mm] mx-auto mb-10 bg-white rounded-sm"
-              style={{ position: 'relative', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
+            <div className="mx-auto mb-10 bg-white rounded-sm"
+              style={{ width: '100%', maxWidth: '210mm', position: 'relative', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
 
               {/* Editor -- ALWAYS in DOM, visibility hidden not display:none -- */}
               <div style={{ visibility: activeTab === 'template' ? 'visible' : 'hidden' }}>
