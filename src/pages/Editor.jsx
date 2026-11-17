@@ -326,11 +326,11 @@ export default function Editor() {
 
       {/* -- Content Area: Full Width -- */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9' }}>
-          <div className="py-6 px-8">
+        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9', overflowX: 'hidden' }}>
+          <div style={{ padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
             {/* Info bar — changes based on active tab */}
-            <div style={{ width: '100%', maxWidth: '210mm' }} className="mx-auto mb-1 flex items-center justify-between px-1">
+            <div style={{ width: '210mm', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '4px', paddingRight: '4px' }}>
               <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
               {activeTab !== 'template' ? (
                 <div className="flex items-center gap-2">
@@ -359,10 +359,8 @@ export default function Editor() {
                 <span className="text-[10px] text-gray-400 italic select-none">{currentProject?.name}</span>
               )}
             </div>
-            {/* ── Single Paper div — always same size, content changes ── */}
-            {/* -- Single Paper div -- editor always rendered, preview overlays -- */}
-            <div className="mx-auto mb-10 bg-white rounded-sm"
-              style={{ width: '100%', maxWidth: '210mm', position: 'relative', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
+            {/* ── Single Paper div — FIXED 210mm, never changes size ── */}
+            <div style={{ width: '210mm', position: 'relative', background: 'white', borderRadius: '2px', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm', marginBottom: '40px', flexShrink: 0 }}>
 
               {/* Editor -- ALWAYS in DOM, visibility hidden not display:none -- */}
               <div style={{ visibility: activeTab === 'template' ? 'visible' : 'hidden' }}>
@@ -388,9 +386,9 @@ export default function Editor() {
               )}
             </div>
 
-          </div>
-        </div>
-      </div>
+          </div>{/* end flex column centering div */}
+        </div>{/* end scroll div */}
+      </div>{/* end flex row */}
 
       {/* ── Panels ── */}
       {findReplaceOpen && (
