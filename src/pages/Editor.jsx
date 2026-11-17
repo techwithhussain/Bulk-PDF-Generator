@@ -26,6 +26,14 @@ export default function Editor() {
   const [showPageSettings, setShowPageSettings] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [previewHtml, setPreviewHtml] = useState('')
+
+  // ── Data Tabs State ─────────────────────────────────────────────────────────
+  const [dataRows, setDataRows] = useState([])          // array of row objects
+  const [activeTab, setActiveTab] = useState('template') // 'template' | row index (number)
+  const [tabHtml, setTabHtml] = useState('')            // rendered HTML for current row tab
+  const [tabLoading, setTabLoading] = useState(false)
+  const tabsRef = useRef(null)
+
   const autosaveTimer = useRef(null)
 
   const editor = useEditor({
@@ -53,6 +61,10 @@ export default function Editor() {
     onUpdate: ({ editor }) => {
       setSaveStatus('unsaved')
       scheduleAutosave(editor.getJSON())
+      // If a row tab is active, refresh its preview after short delay
+      if (activeTab !== 'template') {
+        refreshRowPreview(activeTab)
+      }
     },
   })
 
@@ -68,7 +80,7 @@ export default function Editor() {
     const handler = (e) => {
       if (e.ctrlKey && e.key === 'h') {
         e.preventDefault()
-        setFindReplaceOpen(prev => !prev)  // Toggle — open/close karo
+        setFindReplaceOpen(prev => !prev)
       }
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault()
@@ -92,6 +104,18 @@ export default function Editor() {
         editor.commands.setContent(content)
       } catch {}
     }
+
+    // Load dataset rows if personalized mode
+    if (data.project?.mode === 'personalized' && data.dataset?.id) {
+      try {
+        const res = await window.api.dataImport.getRows(data.dataset.id, 50, 0)
+        if (res.success && res.rows?.length > 0) {
+          const rows = res.rows.map(r => ({ ...r.data, _rowIndex: r.rowIndex }))
+          setDataRows(rows)
+        }
+      } catch {}
+    }
+
     setLoading(false)
     setSaveStatus('saved')
   }
@@ -133,6 +157,29 @@ export default function Editor() {
     }
   }
 
+  // Switch to a tab
+  async function switchTab(tab) {
+    setActiveTab(tab)
+    if (tab !== 'template') {
+      await refreshRowPreview(tab)
+    }
+  }
+
+  // Fetch rendered HTML for a specific row
+  const refreshTimer = useRef(null)
+  async function refreshRowPreview(rowIndex) {
+    if (refreshTimer.current) clearTimeout(refreshTimer.current)
+    refreshTimer.current = setTimeout(async () => {
+      setTabLoading(true)
+      try {
+        const rowData = dataRows[rowIndex]
+        const result = await window.api.pdf.getPreviewData(projectId, rowData)
+        if (result.success) setTabHtml(result.html)
+      } catch {}
+      setTabLoading(false)
+    }, 300)
+  }
+
   async function handleFindReplaceApply(newContentJson) {
     if (!editor) return
     try {
@@ -140,8 +187,46 @@ export default function Editor() {
       editor.commands.setContent(content)
       setSaveStatus('saved')
     } catch {}
-    // Reload project to get updated revision
     await loadProject(projectId)
+  }
+
+  // Load CSV directly from editor
+  async function handleLoadCsv() {
+    try {
+      const filePath = await window.api.dataImport.chooseFile()
+      if (!filePath) return
+      const parsed = await window.api.dataImport.parseFile(filePath)
+      if (!parsed.success || !parsed.rows?.length) {
+        alert('CSV parse nahi hua. File check karo.')
+        return
+      }
+      // Save dataset to project
+      const saved = await window.api.dataImport.saveDataset(projectId, {
+        filename: filePath.split(/[\\/]/).pop(),
+        columns: parsed.columns,
+        rows: parsed.rows,
+        totalRows: parsed.rows.length,
+      })
+      if (saved.success) {
+        // Load rows from saved dataset
+        const res = await window.api.dataImport.getRows(saved.datasetId, 50, 0)
+        if (res.success && res.rows?.length > 0) {
+          const rows = res.rows.map(r => ({ ...r.data, _rowIndex: r.rowIndex }))
+          setDataRows(rows)
+          setActiveTab('template')
+        }
+      }
+    } catch (err) {
+      console.error('CSV load failed:', err)
+    }
+  }
+
+  // Get label for a tab from row data
+  function getRowLabel(row, index) {
+    const airline = row.airline || row.Airline || row.AIRLINE ||
+                    row.name || row.Name || row.NAME ||
+                    row.company || row.Company || null
+    return airline ? String(airline).substring(0, 20) : `Row ${index + 1}`
   }
 
   if (loading) {
@@ -246,30 +331,171 @@ export default function Editor() {
         </div>
       </div>
 
-      {/* ── Toolbar ── */}
-      {editor && <EditorToolbar editor={editor} projectId={projectId} isPersonalized={currentProject?.mode === 'personalized'} />}
+      {/* ── Toolbar (only in template mode) ── */}
+      {activeTab === 'template' && editor && (
+        <EditorToolbar editor={editor} projectId={projectId} isPersonalized={currentProject?.mode === 'personalized'} />
+      )}
 
-      {/* ── Editor Canvas ── */}
-      <div className="flex-1 overflow-auto" style={{ background: '#f0f4f9' }}>
-        <div className="py-6 px-8">
-          {/* Ruler hint */}
-          <div className="max-w-[210mm] mx-auto mb-1">
-            <div className="flex justify-between text-[10px] text-gray-400 select-none px-1">
-              <span>A4 · 210mm × 297mm</span>
-              <span className="italic">{currentProject?.name}</span>
-            </div>
-          </div>
-          {/* Paper */}
-          <div
-            className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
-            style={{
-              boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)',
-              minHeight: '297mm',
-            }}
+      {/* ── Data Preview Tabs (only if personalized mode) ── */}
+      {currentProject?.mode === 'personalized' && (
+        <div
+          ref={tabsRef}
+          className="flex items-end bg-white border-b border-gray-200 overflow-x-auto"
+          style={{ minHeight: '36px', scrollbarWidth: 'thin' }}
+        >
+          {/* Template Tab */}
+          <button
+            onClick={() => switchTab('template')}
+            className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 whitespace-nowrap transition-colors flex-shrink-0 ${
+              activeTab === 'template'
+                ? 'border-blue-600 text-blue-700 bg-blue-50'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
           >
-            <EditorContent editor={editor} />
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            Template
+          </button>
+
+          {/* Divider */}
+          <div className="h-5 w-px bg-gray-200 mx-1 flex-shrink-0" />
+
+          {/* Row Tabs */}
+          {dataRows.map((row, i) => (
+            <button
+              key={i}
+              onClick={() => switchTab(i)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 whitespace-nowrap transition-colors flex-shrink-0 ${
+                activeTab === i
+                  ? 'border-purple-600 text-purple-700 bg-purple-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              <svg className="w-3 h-3 opacity-60" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"/>
+              </svg>
+              {getRowLabel(row, i)}
+            </button>
+          ))}
+
+          {/* Info pill / Load CSV button */}
+          <div className="ml-auto mr-3 flex-shrink-0 flex items-center gap-2">
+            {dataRows.length === 0 ? (
+              <button
+                onClick={handleLoadCsv}
+                className="flex items-center gap-1 text-[11px] text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-full px-3 py-1 transition-colors"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Load CSV for Preview
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleLoadCsv}
+                  className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Change CSV"
+                >
+                  ↺ Change
+                </button>
+                <span className="text-[10px] text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                  {dataRows.length} rows
+                </span>
+              </>
+            )}
           </div>
         </div>
+      )}
+
+      {/* ── Main Content Area ── */}
+      <div className="flex-1 overflow-auto" style={{ background: '#f0f4f9' }}>
+        {/* TEMPLATE TAB — show editor */}
+        {activeTab === 'template' && (
+          <div className="py-6 px-8">
+            <div className="max-w-[210mm] mx-auto mb-1">
+              <div className="flex justify-between text-[10px] text-gray-400 select-none px-1">
+                <span>A4 · 210mm × 297mm</span>
+                <span className="italic">{currentProject?.name}</span>
+              </div>
+            </div>
+            <div
+              className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
+              style={{
+                boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)',
+                minHeight: '297mm',
+              }}
+            >
+              <EditorContent editor={editor} />
+            </div>
+          </div>
+        )}
+
+        {/* ROW PREVIEW TAB — show rendered HTML */}
+        {activeTab !== 'template' && (
+          <div className="py-6 px-8">
+            {/* Tab info bar */}
+            <div className="max-w-[210mm] mx-auto mb-2 flex items-center justify-between">
+              <div className="text-[10px] text-gray-400 select-none flex items-center gap-2">
+                <span className="bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 font-medium">
+                  Preview: {getRowLabel(dataRows[activeTab], activeTab)}
+                </span>
+                <span className="text-gray-400">Read-only — edit in Template tab</span>
+              </div>
+              {/* Navigate between rows */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => activeTab > 0 && switchTab(activeTab - 1)}
+                  disabled={activeTab <= 0}
+                  className="p-1 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                  title="Previous row"
+                >
+                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <span className="text-[11px] text-gray-500 px-1">{activeTab + 1} / {dataRows.length}</span>
+                <button
+                  onClick={() => activeTab < dataRows.length - 1 && switchTab(activeTab + 1)}
+                  disabled={activeTab >= dataRows.length - 1}
+                  className="p-1 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                  title="Next row"
+                >
+                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Paper preview */}
+            <div
+              className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm relative"
+              style={{
+                boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)',
+                minHeight: '297mm',
+              }}
+            >
+              {tabLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center text-gray-400">
+                    <svg className="w-6 h-6 animate-spin mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <p className="text-xs">Rendering preview...</p>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="p-10"
+                  dangerouslySetInnerHTML={{ __html: tabHtml }}
+                />
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Find & Replace Panel */}
@@ -318,4 +544,3 @@ export default function Editor() {
     </div>
   )
 }
-
