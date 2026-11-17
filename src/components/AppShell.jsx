@@ -171,8 +171,8 @@ export default function AppShell() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
+      {/* Main content — overflow-hidden: each page manages its own scroll */}
+      <main className="flex-1 overflow-hidden flex flex-col">
         <Outlet />
       </main>
     </div>
