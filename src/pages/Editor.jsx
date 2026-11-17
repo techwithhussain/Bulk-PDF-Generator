@@ -383,20 +383,20 @@ export default function Editor() {
                 <span className="text-[10px] text-gray-400 italic select-none">{currentProject?.name}</span>
               )}
             </div>
-
             {/* ── Single Paper div — always same size, content changes ── */}
+            {/* -- Single Paper div -- editor always rendered, preview overlays -- */}
             <div className="w-[210mm] mx-auto mb-10 bg-white rounded-sm"
-              style={{ boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
+              style={{ position: 'relative', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
 
-              {/* Editor — always mounted, shown/hidden via CSS to prevent layout shift */}
-              <div style={{ display: activeTab === 'template' ? 'block' : 'none' }}>
+              {/* Editor -- ALWAYS in DOM, visibility hidden not display:none -- */}
+              <div style={{ visibility: activeTab === 'template' ? 'visible' : 'hidden' }}>
                 <EditorContent editor={editor} />
               </div>
 
-              {/* Preview — shown when row tab active */}
+              {/* Preview -- absolute overlay on top of editor -- */}
               {activeTab !== 'template' && (
                 tabLoading ? (
-                  <div className="flex items-center justify-center h-64">
+                  <div className="flex items-center justify-center" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 1 }}>
                     <div className="text-center text-gray-400">
                       <svg className="w-6 h-6 animate-spin mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -406,7 +406,8 @@ export default function Editor() {
                     </div>
                   </div>
                 ) : (
-                  <div style={{ padding: "25.4mm" }} dangerouslySetInnerHTML={{ __html: tabHtml }} />
+                  <div dangerouslySetInnerHTML={{ __html: tabHtml }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, minHeight: '100%', background: 'white', zIndex: 1, padding: '25.4mm' }} />
                 )
               )}
             </div>
