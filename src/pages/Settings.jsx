@@ -53,8 +53,9 @@ export default function Settings() {
 
   async function handleImportCsv() {
     try {
-      const filePath = await window.api.dataImport.chooseFile()
-      if (!filePath) return
+      const result = await window.api.dataImport.chooseFile()
+      if (!result?.success || !result?.filePath) return
+      const filePath = result.filePath
       setAirlinesLoading(true)
       const parsed = await window.api.dataImport.parseFile(filePath)
       if (!parsed.success || !parsed.rows?.length) {

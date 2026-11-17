@@ -145,8 +145,9 @@ export default function Editor() {
 
   async function handleLoadCsv() {
     try {
-      const filePath = await window.api.dataImport.chooseFile()
-      if (!filePath) return
+      const result = await window.api.dataImport.chooseFile()
+      if (!result?.success || !result?.filePath) return
+      const filePath = result.filePath
       const parsed = await window.api.dataImport.parseFile(filePath)
       if (!parsed.success || !parsed.rows?.length) { alert('CSV parse nahi hua.'); return }
       const saved = await window.api.dataImport.saveDataset(projectId, {
@@ -285,7 +286,7 @@ export default function Editor() {
             </div>
 
             {/* Scrollable tab list */}
-            <div className="flex-1 overflow-y-auto py-1" style={{ scrollbarWidth: 'thin' }}>
+            <div className="flex-1 overflow-y-scroll py-1" style={{ scrollbarWidth: 'thin' }}>
 
               {/* Template tab */}
               <button
@@ -396,7 +397,7 @@ export default function Editor() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-10" dangerouslySetInnerHTML={{ __html: tabHtml }} />
+                  <div style={{ padding: "25.4mm" }} dangerouslySetInnerHTML={{ __html: tabHtml }} />
                 )
               )}
             </div>
