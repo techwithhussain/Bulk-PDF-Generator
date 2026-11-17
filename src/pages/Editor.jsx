@@ -36,6 +36,7 @@ export default function Editor() {
 
   const autosaveTimer = useRef(null)
   const refreshTimer = useRef(null)
+  const previewRef = useRef(null)
 
   const editor = useEditor({
     extensions: [
@@ -67,10 +68,22 @@ export default function Editor() {
     const handler = (e) => {
       if (e.ctrlKey && e.key === 'h') { e.preventDefault(); setFindReplaceOpen(prev => !prev) }
       if (e.ctrlKey && e.key === 's') { e.preventDefault(); handleManualSave() }
+      // Ctrl+A in preview tab → select only preview content (not full screen)
+      if (e.ctrlKey && e.key === 'a' && activeTab !== 'template') {
+        e.preventDefault()
+        e.stopPropagation()
+        if (previewRef.current) {
+          const selection = window.getSelection()
+          const range = document.createRange()
+          range.selectNodeContents(previewRef.current)
+          selection.removeAllRanges()
+          selection.addRange(range)
+        }
+      }
     }
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
-  }, [editor])
+  }, [editor, activeTab])
 
   // Set content once editor is ready
   useEffect(() => {
@@ -138,6 +151,11 @@ export default function Editor() {
     setActiveTab(tab)
     if (tab !== 'template') {
       await fetchRowPreview(tab)
+      // Focus preview div so Ctrl+A/Ctrl+C work on preview content only
+      setTimeout(() => { if (previewRef.current) previewRef.current.focus() }, 100)
+    } else {
+      // Return focus to editor when back on template
+      if (editor) editor.commands.focus()
     }
   }
 
@@ -380,8 +398,12 @@ export default function Editor() {
                     </div>
                   </div>
                 ) : (
-                  <div dangerouslySetInnerHTML={{ __html: tabHtml }}
-                    style={{ position: 'absolute', top: 0, left: 0, right: 0, minHeight: '100%', background: 'white', zIndex: 1, padding: '25.4mm' }} />
+                  <div
+                    ref={previewRef}
+                    tabIndex={0}
+                    dangerouslySetInnerHTML={{ __html: tabHtml }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, minHeight: '100%', background: 'white', zIndex: 1, padding: '25.4mm', outline: 'none', cursor: 'text', userSelect: 'text' }}
+                  />
                 )
               )}
             </div>
