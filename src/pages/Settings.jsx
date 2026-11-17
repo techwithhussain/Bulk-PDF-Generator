@@ -127,6 +127,7 @@ export default function Settings() {
   }
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="p-6 max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -362,6 +363,7 @@ export default function Settings() {
         </div>
 
       </div>
+    </div>
     </div>
   )
 }

@@ -159,6 +159,7 @@ export default function BatchProgress() {
   const progressPct = counts.total > 0 ? Math.round((counts.done / counts.total) * 100) : 0
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="p-6 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
@@ -344,6 +345,7 @@ export default function BatchProgress() {
           )}
         </div>
       </div>
+    </div>
     </div>
   )
 }

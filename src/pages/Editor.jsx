@@ -203,7 +203,7 @@ export default function Editor() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#f8f9fa]">
+    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', background: '#f8f9fa' }}>
 
       {/* ── Top Header ── */}
       <div className="bg-white border-b border-gray-200 px-4 pt-2 pb-0 flex-shrink-0">

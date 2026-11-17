@@ -39,6 +39,7 @@ export default function Dashboard() {
   }
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
@@ -185,6 +186,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+    </div>
     </div>
   )
 }

@@ -67,6 +67,7 @@ export default function PDFLibrary() {
   })
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="p-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
@@ -254,6 +255,7 @@ export default function PDFLibrary() {
           </div>
         </div>
       )}
+    </div>
     </div>
   )
 }

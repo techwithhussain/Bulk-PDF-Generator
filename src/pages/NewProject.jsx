@@ -31,6 +31,7 @@ export default function NewProject() {
   }
 
   return (
+    <div className="h-full overflow-y-auto">
     <div className="p-6 max-w-xl mx-auto">
       {/* Back */}
       <button onClick={() => navigate('/')} className="btn-ghost btn-sm mb-6">
@@ -126,6 +127,7 @@ export default function NewProject() {
           </div>
         </form>
       </div>
+    </div>
     </div>
   )
 }

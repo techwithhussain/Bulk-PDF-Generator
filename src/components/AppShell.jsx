@@ -167,12 +167,12 @@ export default function AppShell() {
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
             <span className="text-[11px] text-gray-400">100% Offline</span>
           </div>
-          <div className="text-[10px] text-gray-300 mt-0.5 px-1">Local PDF Studio v1.0</div>
+          <div className="text-[10px] text-gray-300 mt-0.5 px-1">Local PDF Studio v1.2.0</div>
         </div>
       </aside>
 
-      {/* Main content — overflow-hidden: each page manages its own scroll */}
-      <main className="flex-1 overflow-hidden flex flex-col">
+      {/* Main content */}
+      <main className="flex-1 min-h-0 overflow-hidden relative">
         <Outlet />
       </main>
     </div>
