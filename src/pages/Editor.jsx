@@ -32,6 +32,7 @@ export default function Editor() {
   const [activeTab, setActiveTab] = useState('template')
   const [tabHtml, setTabHtml] = useState('')
   const [tabLoading, setTabLoading] = useState(false)
+  const [pendingContent, setPendingContent] = useState(null)
 
   const autosaveTimer = useRef(null)
   const refreshTimer = useRef(null)
@@ -71,12 +72,20 @@ export default function Editor() {
     return () => document.removeEventListener('keydown', handler)
   }, [editor])
 
+  // Set content once editor is ready
+  useEffect(() => {
+    if (editor && pendingContent !== null) {
+      try { editor.commands.setContent(JSON.parse(pendingContent)) } catch {}
+      setPendingContent(null)
+    }
+  }, [editor, pendingContent])
+
   async function initProject() {
     setLoading(true)
     const data = await loadProject(projectId)
     if (!data) { navigate('/'); return }
-    if (data.revision && editor) {
-      try { editor.commands.setContent(JSON.parse(data.revision.content_json)) } catch {}
+    if (data.revision) {
+      setPendingContent(data.revision.content_json)
     }
     if (data.project?.mode === 'personalized' && data.dataset?.id) {
       try {
@@ -341,11 +350,11 @@ export default function Editor() {
         )}
 
         {/* ── RIGHT: Editor / Preview Area (overflow-y:scroll = no layout shift) ── */}
-        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9' }}>
-          <div className="py-6 px-8">
+        <div className="flex-1 overflow-y-scroll overflow-x-auto" style={{ background: '#f0f4f9', minWidth: 0 }}>
+          <div className="py-6 px-8" style={{ minWidth: 'calc(210mm + 128px)' }}>
 
             {/* Info bar — changes based on active tab */}
-            <div className="max-w-[210mm] mx-auto mb-1 flex items-center justify-between px-1">
+            <div className="w-[210mm] mx-auto mb-1 flex items-center justify-between px-1">
               <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
               {activeTab !== 'template' ? (
                 <div className="flex items-center gap-2">
@@ -376,7 +385,7 @@ export default function Editor() {
             </div>
 
             {/* ── Single Paper div — always same size, content changes ── */}
-            <div className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
+            <div className="w-[210mm] mx-auto mb-10 bg-white rounded-sm"
               style={{ boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
 
               {/* Editor — always mounted, shown/hidden via CSS to prevent layout shift */}
@@ -417,8 +426,8 @@ export default function Editor() {
           onSaved={() => { setShowPageSettings(false); loadProject(projectId) }} />
       )}
       {showPreview && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-75 z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <h2 className="font-semibold text-gray-900">Document Preview</h2>
               <button onClick={() => setShowPreview(false)} className="btn-ghost btn-sm">
@@ -428,7 +437,7 @@ export default function Editor() {
               </button>
             </div>
             <div className="flex-1 overflow-auto p-4 bg-gray-50">
-              <div className="max-w-[210mm] mx-auto bg-white shadow-md rounded p-10"
+              <div className="w-[210mm] mx-auto bg-white shadow-md rounded" style={{ padding: "25.4mm" }}
                 dangerouslySetInnerHTML={{ __html: previewHtml }} />
             </div>
           </div>
