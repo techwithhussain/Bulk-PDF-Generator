@@ -45,6 +45,19 @@ export default function BulkGenerator() {
       if (data.dataset) {
         setDataset(data.dataset)
         await loadRows(data.dataset.id, 0)
+      } else {
+        // No project dataset — load global airlines
+        try {
+          const res = await window.api.airlines.asRows()
+          if (res.success && res.rows?.length > 0) {
+            const rows = res.rows.map(r => ({ ...r.data, _rowIndex: r.rowIndex }))
+            setAllRows(rows)
+            const keys = new Set(rows.map((_, i) => i))
+            setCheckedKeys(keys)
+            setSelectedRows(rows)
+            setQuantity(rows.length)
+          }
+        } catch {}
       }
     }
     setLoading(false)

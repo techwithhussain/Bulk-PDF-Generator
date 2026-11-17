@@ -85,6 +85,14 @@ export default function Editor() {
           setDataRows(res.rows.map(r => ({ ...r.data, _rowIndex: r.rowIndex })))
         }
       } catch {}
+    } else if (data.project?.mode === 'personalized') {
+      // No project dataset — try global airlines
+      try {
+        const res = await window.api.airlines.asRows()
+        if (res.success && res.rows?.length > 0) {
+          setDataRows(res.rows.map(r => ({ ...r.data, _rowIndex: r.rowIndex })))
+        }
+      } catch {}
     }
     setLoading(false)
     setSaveStatus('saved')
@@ -331,53 +339,53 @@ export default function Editor() {
           </div>
         )}
 
-        {/* ── RIGHT: Editor / Preview Area ── */}
-        <div className="flex-1 overflow-auto" style={{ background: '#f0f4f9' }}>
+        {/* ── RIGHT: Editor / Preview Area (overflow-y:scroll = no layout shift) ── */}
+        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9' }}>
+          <div className="py-6 px-8">
 
-          {/* TEMPLATE MODE */}
-          {activeTab === 'template' && (
-            <div className="py-6 px-8">
-              <div className="max-w-[210mm] mx-auto mb-1 flex justify-between text-[10px] text-gray-400 select-none px-1">
-                <span>A4 · 210mm × 297mm</span>
-                <span className="italic">{currentProject?.name}</span>
-              </div>
-              <div className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
-                style={{ boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
+            {/* Info bar — changes based on active tab */}
+            <div className="max-w-[210mm] mx-auto mb-1 flex items-center justify-between px-1">
+              <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
+              {activeTab !== 'template' ? (
+                <div className="flex items-center gap-2">
+                  <span className="bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 text-[10px] font-medium">
+                    Preview: {getRowLabel(dataRows[activeTab], activeTab)}
+                  </span>
+                  <div className="flex items-center gap-0.5">
+                    <button onClick={() => activeTab > 0 && switchTab(activeTab - 1)}
+                      disabled={activeTab <= 0}
+                      className="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
+                      <svg className="w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-[10px] text-gray-500">{activeTab + 1}/{dataRows.length}</span>
+                    <button onClick={() => activeTab < dataRows.length - 1 && switchTab(activeTab + 1)}
+                      disabled={activeTab >= dataRows.length - 1}
+                      className="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
+                      <svg className="w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <span className="text-[10px] text-gray-400 italic select-none">{currentProject?.name}</span>
+              )}
+            </div>
+
+            {/* ── Single Paper div — always same size, content changes ── */}
+            <div className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
+              style={{ boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
+
+              {/* Editor — always mounted, shown/hidden via CSS to prevent layout shift */}
+              <div style={{ display: activeTab === 'template' ? 'block' : 'none' }}>
                 <EditorContent editor={editor} />
               </div>
-            </div>
-          )}
 
-          {/* ROW PREVIEW MODE */}
-          {activeTab !== 'template' && (
-            <div className="py-6 px-8">
-              {/* Nav bar */}
-              <div className="max-w-[210mm] mx-auto mb-2 flex items-center justify-between">
-                <span className="bg-purple-100 text-purple-700 rounded-full px-2 py-0.5 text-[10px] font-medium">
-                  Preview: {getRowLabel(dataRows[activeTab], activeTab)}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => activeTab > 0 && switchTab(activeTab - 1)}
-                    disabled={activeTab <= 0}
-                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
-                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <span className="text-[11px] text-gray-500 px-1">{activeTab + 1} / {dataRows.length}</span>
-                  <button onClick={() => activeTab < dataRows.length - 1 && switchTab(activeTab + 1)}
-                    disabled={activeTab >= dataRows.length - 1}
-                    className="p-1 rounded hover:bg-gray-200 disabled:opacity-30">
-                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              {/* Paper */}
-              <div className="max-w-[210mm] mx-auto mb-10 bg-white rounded-sm"
-                style={{ boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm' }}>
-                {tabLoading ? (
+              {/* Preview — shown when row tab active */}
+              {activeTab !== 'template' && (
+                tabLoading ? (
                   <div className="flex items-center justify-center h-64">
                     <div className="text-center text-gray-400">
                       <svg className="w-6 h-6 animate-spin mx-auto mb-2" fill="none" viewBox="0 0 24 24">
@@ -389,10 +397,11 @@ export default function Editor() {
                   </div>
                 ) : (
                   <div className="p-10" dangerouslySetInnerHTML={{ __html: tabHtml }} />
-                )}
-              </div>
+                )
+              )}
             </div>
-          )}
+
+          </div>
         </div>
       </div>
 

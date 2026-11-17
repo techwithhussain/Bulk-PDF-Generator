@@ -45,6 +45,7 @@ function runMigrations(db) {
 
   const migrations = [
     { version: 1, sql: migration_001 },
+    { version: 2, sql: migration_002 },
   ]
 
   const applied = db.prepare('SELECT version FROM schema_migrations').all().map(r => r.version)
@@ -183,6 +184,16 @@ const migration_001 = `
     ('autosave_interval', '3000', datetime('now')),
     ('low_memory_mode', '0', datetime('now')),
     ('max_concurrent_workers', '2', datetime('now'));
+`
+
+const migration_002 = `
+  CREATE TABLE IF NOT EXISTS global_airlines (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    sort_order INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_global_airlines_order ON global_airlines(sort_order);
 `
 
 module.exports = { initDatabase, getDb, getDbPath }

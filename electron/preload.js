@@ -77,6 +77,16 @@ contextBridge.exposeInMainWorld('api', {
     deactivate: () => ipcRenderer.invoke('license:deactivate'),
   },
 
+  // Global Airlines List
+  airlines: {
+    getAll: () => ipcRenderer.invoke('airlines:getAll'),
+    addFromText: (text) => ipcRenderer.invoke('airlines:addFromText', text),
+    importFromCsv: (names) => ipcRenderer.invoke('airlines:importFromCsv', names),
+    delete: (id) => ipcRenderer.invoke('airlines:delete', id),
+    clear: () => ipcRenderer.invoke('airlines:clear'),
+    asRows: () => ipcRenderer.invoke('airlines:asRows'),
+  },
+
   // IPC event listeners (progress updates, etc.)
   on: (channel, callback) => {
     const allowedChannels = [
