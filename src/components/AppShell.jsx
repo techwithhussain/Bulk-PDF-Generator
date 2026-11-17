@@ -144,24 +144,6 @@ export default function AppShell() {
 
         {/* Footer */}
         <div className="px-3 py-3 border-t border-gray-100">
-          {/* Branding */}
-          <a
-            href="https://techwithhussain.online/"
-            target="_blank"
-            rel="noreferrer"
-            className="block mb-2 group"
-            title="Visit Tech With Hussain"
-          >
-            <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 hover:from-blue-100 hover:to-indigo-100 transition-colors">
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                <span className="text-white font-bold" style={{ fontSize: '9px' }}>TH</span>
-              </div>
-              <div className="min-w-0">
-                <div className="text-[10px] font-bold text-blue-700 leading-tight truncate">Tech With Hussain</div>
-                <div className="text-[9px] text-blue-400 leading-tight truncate">techwithhussain.online</div>
-              </div>
-            </div>
-          </a>
           {/* Status */}
           <div className="flex items-center gap-1.5 px-1">
             <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
