@@ -253,7 +253,7 @@ function buildFilename(pattern, index, rowData) {
   if (rowData) {
     name = name.replace(/\{\{(\w+)\}\}/g, (_, key) => {
       const val = rowData[key] || rowData[key.toLowerCase()] || ''
-      return String(val).replace(/[<>:"/\\|?*]/g, '_').trim()
+      return String(val).replace(/\s+/g, '_').replace(/[<>:"/\\|?*]/g, '_').trim()
     })
   }
 
