@@ -203,7 +203,7 @@ export default function Editor() {
   }
 
   return (
-    <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', background: '#f8f9fa' }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', flexDirection: 'column', background: '#f8f9fa' }}>
 
       {/* ── Top Header ── */}
       <div className="bg-white border-b border-gray-200 px-4 pt-2 pb-0 flex-shrink-0">
@@ -327,10 +327,10 @@ export default function Editor() {
       {/* -- Content Area: Full Width -- */}
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9', overflowX: 'hidden' }}>
-          <div style={{ padding: '24px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
 
             {/* Info bar — changes based on active tab */}
-            <div style={{ width: '210mm', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '4px', paddingRight: '4px' }}>
+            <div style={{ width: '100%', maxWidth: '210mm', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '4px', paddingRight: '4px' }}>
               <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
               {activeTab !== 'template' ? (
                 <div className="flex items-center gap-2">
@@ -360,7 +360,7 @@ export default function Editor() {
               )}
             </div>
             {/* ── Single Paper div — FIXED 210mm, never changes size ── */}
-            <div style={{ width: '210mm', position: 'relative', background: 'white', borderRadius: '2px', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm', marginBottom: '40px', flexShrink: 0 }}>
+            <div style={{ width: '100%', maxWidth: '210mm', position: 'relative', background: 'white', borderRadius: '2px', boxShadow: '0 1px 3px rgba(60,64,67,.3), 0 4px 8px rgba(60,64,67,.15)', minHeight: '297mm', marginBottom: '40px', flexShrink: 0 }}>
 
               {/* Editor -- ALWAYS in DOM, visibility hidden not display:none -- */}
               <div style={{ visibility: activeTab === 'template' ? 'visible' : 'hidden' }}>
