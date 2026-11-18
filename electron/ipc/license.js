@@ -4,7 +4,7 @@ const http = require('http')
 const crypto = require('crypto')
 
 // ── Google Apps Script Web App URL ──────────────────────────────────────────
-const VALIDATION_URL = 'https://script.google.com/macros/s/AKfycbyB9vYTOsN119gWXqXIILdmk3yIkgD5fEwnS4zbfLfkLnPBxbVVFLtoZdY3LX63GM6L/exec'
+const VALIDATION_URL = 'https://script.google.com/macros/s/AKfycbz_xRW5WyoiKGo_fI_XPf3Us_w_8BrYF3z3zN0FymQN9fgpnX3wVWqy8aAnosofU_Tk/exec'
 
 // ── Get or create a persistent machine ID ───────────────────────────────────
 function getMachineId(db) {
