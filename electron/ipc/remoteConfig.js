@@ -2,6 +2,8 @@
 
 const https = require('https')
 const http = require('http')
+const fs = require('fs')
+const path = require('path')
 const { app } = require('electron')
 
 // Same GAS URL as license — config action added
@@ -24,20 +26,32 @@ const DEFAULT_CONFIG = {
   features: {},
 }
 
+// Debug log helper
+function writeDebug(data) {
+  try {
+    const logPath = path.join(app.getPath('userData'), 'remote-config-debug.json')
+    fs.writeFileSync(logPath, JSON.stringify({ ...data, time: new Date().toISOString() }, null, 2))
+  } catch {}
+}
+
 // Fetch config from Google Sheet via GAS
 async function fetchRemoteConfig() {
   try {
     const url = `${GAS_URL}?action=getConfig`
+    writeDebug({ status: 'fetching', url })
     const result = await fetchUrl(url)
     const data = JSON.parse(result)
+    writeDebug({ status: 'fetched', data })
 
     if (data && data.success) {
       cachedConfig = { ...DEFAULT_CONFIG, ...data.config }
       lastFetchTime = Date.now()
       return cachedConfig
     }
+    writeDebug({ status: 'failed', reason: 'success=false', data })
     return cachedConfig || DEFAULT_CONFIG
   } catch (err) {
+    writeDebug({ status: 'error', error: err.message })
     console.log('[RemoteConfig] Fetch failed (offline?):', err.message)
     return cachedConfig || DEFAULT_CONFIG
   }
