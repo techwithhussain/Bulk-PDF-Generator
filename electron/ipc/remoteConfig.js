@@ -5,7 +5,7 @@ const http = require('http')
 const { app } = require('electron')
 
 // Same GAS URL as license — config action added
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbz_xRW5WyoiKGo_fI_XPf3Us_w_8BrYF3z3zN0FymQN9fgpnX3wVWqy8aAnosofU_Tk/exec'
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxXvGc_hKRHJgUMWzOnkCi_PpIRomfgTPjYhi5vfvD5_24Wb9D9OU0mn7NmWfDvqnxr/exec'
 
 // Cached config (so we don't fetch every IPC call)
 let cachedConfig = null
