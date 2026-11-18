@@ -87,6 +87,12 @@ contextBridge.exposeInMainWorld('api', {
     asRows: () => ipcRenderer.invoke('airlines:asRows'),
   },
 
+  // Remote Config (version check, announcements, feature flags)
+  remoteConfig: {
+    get: () => ipcRenderer.invoke('remoteConfig:get'),
+    refresh: () => ipcRenderer.invoke('remoteConfig:refresh'),
+  },
+
   // IPC event listeners (progress updates, etc.)
   on: (channel, callback) => {
     const allowedChannels = [
@@ -97,6 +103,7 @@ contextBridge.exposeInMainWorld('api', {
       'batch:canceled',
       'export:progress',
       'export:complete',
+      'remoteConfig:loaded',
     ]
     if (allowedChannels.includes(channel)) {
       const listener = (_event, ...args) => callback(...args)

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -37,6 +37,7 @@ export default function Editor() {
   const autosaveTimer = useRef(null)
   const refreshTimer = useRef(null)
   const previewRef = useRef(null)
+  const scrollContainerRef = useRef(null)
 
   const editor = useEditor({
     extensions: [
@@ -84,6 +85,12 @@ export default function Editor() {
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [editor, activeTab])
+
+  useLayoutEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0
+    }
+  }, [activeTab])
 
   // Set content once editor is ready
   useEffect(() => {
@@ -151,11 +158,15 @@ export default function Editor() {
     setActiveTab(tab)
     if (tab !== 'template') {
       await fetchRowPreview(tab)
-      // Focus preview div so Ctrl+A/Ctrl+C work on preview content only
-      setTimeout(() => { if (previewRef.current) previewRef.current.focus() }, 100)
+      setTimeout(() => {
+        if (previewRef.current) previewRef.current.focus({ preventScroll: true })
+        if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0
+      }, 0)
     } else {
-      // Return focus to editor when back on template
-      if (editor) editor.commands.focus()
+      setTimeout(() => {
+        if (editor) editor.commands.focus('start', { scrollIntoView: false })
+        if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0
+      }, 0)
     }
   }
 
@@ -208,7 +219,7 @@ export default function Editor() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} className="flex items-center justify-center">
         <div className="text-center text-gray-400">
           <svg className="w-6 h-6 animate-spin mx-auto mb-2" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -343,12 +354,12 @@ export default function Editor() {
       )}
 
       {/* -- Content Area: Full Width -- */}
-      <div className="flex flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-scroll" style={{ background: '#f0f4f9', overflowX: 'hidden' }}>
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-scroll" style={{ background: '#f0f4f9', overflowX: 'hidden', scrollbarGutter: 'stable', overflowAnchor: 'none', scrollBehavior: 'auto' }}>
           <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', boxSizing: 'border-box' }}>
 
             {/* Info bar — changes based on active tab */}
-            <div style={{ width: '100%', maxWidth: '210mm', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '4px', paddingRight: '4px' }}>
+            <div style={{ width: '100%', maxWidth: '210mm', height: '28px', flexShrink: 0, marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: '4px', paddingRight: '4px', boxSizing: 'border-box' }}>
               <span className="text-[10px] text-gray-400 select-none">A4 · 210mm × 297mm</span>
               {activeTab !== 'template' ? (
                 <div className="flex items-center gap-2">

@@ -1,10 +1,13 @@
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect } from 'react'
 import useAppStore from '../store/appStore'
+import { useRemoteConfig } from '../hooks/useRemoteConfig'
+import { AnnouncementBanner, UpdateBanner, MaintenanceScreen } from './RemoteConfigUI'
 
 export default function AppShell() {
   const { loadSettings, currentProject } = useAppStore()
   const location = useLocation()
+  const { config } = useRemoteConfig()
 
   // Extract projectId from path like /project/:id/...
   const projectMatch = location.pathname.match(/^\/project\/([^/]+)/)
@@ -16,6 +19,9 @@ export default function AppShell() {
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f8f9fa' }}>
+      {/* Maintenance overlay — overrides everything */}
+      <MaintenanceScreen config={config} />
+
       {/* Sidebar */}
       <aside className="w-44 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderRight: '1px solid #e0e0e0' }}>
         {/* Logo */}
@@ -153,10 +159,16 @@ export default function AppShell() {
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 min-h-0 overflow-hidden relative">
-        <Outlet />
-      </main>
+      {/* Main content — banners on top, page below */}
+      <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col">
+        {/* Remote config banners */}
+        <UpdateBanner config={config} />
+        <AnnouncementBanner config={config} />
+        {/* Page */}
+        <main className="flex-1 min-h-0 overflow-hidden relative">
+          <Outlet />
+        </main>
+      </div>
     </div>
   )
 }

@@ -18,6 +18,7 @@ const { registerDataImportHandlers } = require('./ipc/dataImport')
 const { registerSettingsHandlers } = require('./ipc/settings')
 const { registerLicenseHandlers } = require('./ipc/license')
 const { registerAirlinesHandlers } = require('./ipc/airlines')
+const { registerRemoteConfigHandlers, fetchRemoteConfig } = require('./ipc/remoteConfig')
 
 let mainWindow = null
 
@@ -90,8 +91,20 @@ app.whenReady().then(async () => {
   registerSettingsHandlers(ipcMain)
   registerLicenseHandlers(ipcMain)
   registerAirlinesHandlers(ipcMain)
+  registerRemoteConfigHandlers(ipcMain)
 
   createWindow()
+
+  // Fetch remote config in background after window loads
+  app.on('browser-window-created', (_, win) => {
+    win.webContents.once('did-finish-load', async () => {
+      try {
+        const config = await fetchRemoteConfig()
+        // Send config to renderer
+        win.webContents.send('remoteConfig:loaded', config)
+      } catch {}
+    })
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
