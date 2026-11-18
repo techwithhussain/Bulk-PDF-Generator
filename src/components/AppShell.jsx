@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import useAppStore from '../store/appStore'
 import { useRemoteConfig } from '../hooks/useRemoteConfig'
 import { AnnouncementBanner, UpdateBanner, MaintenanceScreen } from './RemoteConfigUI'
+import { ForceUpdateScreen, UpdateToastBanner } from './AutoUpdateUI'
 
 export default function AppShell() {
   const { loadSettings, currentProject } = useAppStore()
@@ -21,6 +22,7 @@ export default function AppShell() {
     <div className="flex h-screen overflow-hidden" style={{ background: '#f8f9fa' }}>
       {/* Maintenance overlay — overrides everything */}
       <MaintenanceScreen config={config} />
+      <ForceUpdateScreen config={config} />
 
       {/* Sidebar */}
       <aside className="w-44 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderRight: '1px solid #e0e0e0' }}>
@@ -163,6 +165,7 @@ export default function AppShell() {
       <div className="flex-1 min-h-0 overflow-hidden relative flex flex-col">
         {/* Remote config banners */}
         <UpdateBanner config={config} />
+        <UpdateToastBanner config={config} />
         <AnnouncementBanner config={config} />
         {/* Page */}
         <main className="flex-1 min-h-0 overflow-hidden relative">

@@ -19,6 +19,7 @@ const { registerSettingsHandlers } = require('./ipc/settings')
 const { registerLicenseHandlers } = require('./ipc/license')
 const { registerAirlinesHandlers } = require('./ipc/airlines')
 const { registerRemoteConfigHandlers, fetchRemoteConfig } = require('./ipc/remoteConfig')
+const { registerUpdaterHandlers, initUpdater } = require('./ipc/updater')
 
 let mainWindow = null
 
@@ -92,17 +93,19 @@ app.whenReady().then(async () => {
   registerLicenseHandlers(ipcMain)
   registerAirlinesHandlers(ipcMain)
   registerRemoteConfigHandlers(ipcMain)
+  registerUpdaterHandlers(ipcMain)
 
   createWindow()
 
-  // Fetch remote config in background after window loads
+  // Fetch remote config + init updater after window loads
   app.on('browser-window-created', (_, win) => {
     win.webContents.once('did-finish-load', async () => {
       try {
         const config = await fetchRemoteConfig()
-        // Send config to renderer
         win.webContents.send('remoteConfig:loaded', config)
       } catch {}
+      // Init auto-updater (checks after 5 seconds)
+      initUpdater(win)
     })
   })
 

@@ -93,6 +93,14 @@ contextBridge.exposeInMainWorld('api', {
     refresh: () => ipcRenderer.invoke('remoteConfig:refresh'),
   },
 
+  // Auto Updater
+  updater: {
+    check: () => ipcRenderer.invoke('updater:check'),
+    download: () => ipcRenderer.invoke('updater:download'),
+    install: () => ipcRenderer.invoke('updater:install'),
+    status: () => ipcRenderer.invoke('updater:status'),
+  },
+
   // IPC event listeners (progress updates, etc.)
   on: (channel, callback) => {
     const allowedChannels = [
@@ -104,6 +112,12 @@ contextBridge.exposeInMainWorld('api', {
       'export:progress',
       'export:complete',
       'remoteConfig:loaded',
+      'updater:checking',
+      'updater:available',
+      'updater:not-available',
+      'updater:progress',
+      'updater:downloaded',
+      'updater:error',
     ]
     if (allowedChannels.includes(channel)) {
       const listener = (_event, ...args) => callback(...args)
